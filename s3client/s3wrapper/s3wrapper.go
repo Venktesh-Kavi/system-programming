@@ -15,6 +15,15 @@ import (
 	"time"
 )
 
+type S3ServiceI interface {
+	GetPreSignedUrl(ctx context.Context, bucket, objectId string) (*v4.PresignedHTTPRequest, error)
+	PutPreSignedUrl(ctx context.Context, bucket, srcFilePath string) (*v4.PresignedHTTPRequest, error)
+	UploadFile(preSignedUrl, sourceFilePath string, metaHeaders ...map[string]string) error
+}
+
+type S3Service struct {
+	Config S3Config
+}
 type S3Config struct {
 	cfg    aws.Config
 	client *s3.Client
@@ -28,11 +37,11 @@ func MakeS3Config(cfg aws.Config) S3Config {
 }
 
 // GetPreSignedUrl returns a preSigned url for an s3 object
-func (s3Client S3Config) GetPreSignedUrl(ctx context.Context, bucket string, objId string) (*v4.PresignedHTTPRequest, error) {
-	if s3Client.client == nil {
+func (s3Service S3Service) GetPreSignedUrl(ctx context.Context, bucket string, objId string) (*v4.PresignedHTTPRequest, error) {
+	if s3Service.Config.client == nil {
 		log.Fatalf("s3 client is nil")
 	}
-	preSignedClient := s3.NewPresignClient(s3Client.client)
+	preSignedClient := s3.NewPresignClient(s3Service.Config.client)
 	pr, err := preSignedClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: &bucket,
 		Key:    &objId},
@@ -46,8 +55,8 @@ func (s3Client S3Config) GetPreSignedUrl(ctx context.Context, bucket string, obj
 	return pr, nil
 }
 
-func (s3Client S3Config) PutPreSignUrl(ctx context.Context, bucket string, sfp string) (*v4.PresignedHTTPRequest, error) {
-	if s3Client.client == nil {
+func (s3Service S3Service) PutPreSignUrl(ctx context.Context, bucket string, sfp string) (*v4.PresignedHTTPRequest, error) {
+	if s3Service.Config.client == nil {
 		log.Fatalf("s3 client is nil")
 	}
 	filename := filepath.Base(sfp)
@@ -56,7 +65,7 @@ func (s3Client S3Config) PutPreSignUrl(ctx context.Context, bucket string, sfp s
 	fmt.Printf("generating a uploadable presigned url, bucket: %s, file: %s, ext: %s, content type: %s\n", bucket, sfp, fileExt, ct)
 	// Note: /dev/null is black hole file were any output written is discarded. `os.DevNull` is a constant here. Use ioutil.Discard for writing to a black hole.
 	discardReader, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
-	preSignedOp, err := s3.NewPresignClient(s3Client.client, func(opts *s3.PresignOptions) {
+	preSignedOp, err := s3.NewPresignClient(s3Service.Config.client, func(opts *s3.PresignOptions) {
 		opts.Expires = 10 * time.Minute
 	}).PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket:      &bucket,
@@ -70,7 +79,7 @@ func (s3Client S3Config) PutPreSignUrl(ctx context.Context, bucket string, sfp s
 	return preSignedOp, nil
 }
 
-func (s3Client S3Config) UploadToBucket(putUrl string, sfp string, metaHeaders ...map[string]string) error {
+func (s3Service S3Service) UploadToBucket(putUrl string, sfp string, metaHeaders ...map[string]string) error {
 	log.Printf("opening file: %s\n", sfp)
 	file, err := os.Open(sfp)
 	if err != nil {

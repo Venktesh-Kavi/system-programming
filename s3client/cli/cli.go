@@ -15,12 +15,18 @@ import (
 	"time"
 )
 
+// Commands represents ACTIONS, Args are Things and Flags are modifiers to these actions.
+// APPNAME VERB NOUN --ADJECTIVE / APPNAME COMMAND ARG --FLAGS
+// hugo server --port=8080 / hugo server URL --bare
+
 const s3ConfigCtxKey = "s3-config"
 
+var version = "0.1v"
 var rootCmd = &cobra.Command{
-	Use:   "gaws",
-	Short: "gaws is a CLI tool for interacting with AWS resources with a go client",
-	Long:  `gaws is a CLI tool for interacting with AWS resources with a go client`,
+	Use:     "gaws",
+	Version: version,
+	Short:   "gaws is a CLI tool for interacting with AWS resources with a go client",
+	Long:    `gaws is a CLI tool for interacting with AWS resources with a go client`,
 	// runs before every child command
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
@@ -34,44 +40,45 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-var getPreSignedUrl = &cobra.Command{
-	Use:   "get-presigned-url",
-	Short: "Get a presigned url for an s3 object",
-	Long:  "Get a presigned url for an s3 object",
-	Args:  cobra.ExactArgs(2),
+var s3Cmd = &cobra.Command{
+	Use:   "s3",
+	Short: "Operations on the S3 resource",
+	Long:  "Operations on the S3 resource",
+	Args:  cobra.ExactArgs(1),
+}
+
+const getPreSignedUrl = "get"
+const putPreSignedUrl = "put"
+
+var s3UrlCmd = &cobra.Command{
+	Use:       "url",
+	Short:     "Get a preSignedUrl for an s3 object",
+	Long:      "Get a preSignedUrl for an s3 object",
+	ValidArgs: []string{"bucket", "objectKey/filePath"},
+	Args:      cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		cc, err := retrieveConfig(cmd.Context())
+		s3Service := s3Wrapper.S3Service{
+			Config: cc,
+		}
 		if err != nil {
 			return err
 		}
 		bucket, key := args[0], args[1]
-		preSignedUrl, err := cc.GetPreSignedUrl(ctx, bucket, key)
-		if err != nil {
-			return err
+		urlOp := cmd.Flags().Lookup("preSignedUrl").Value.String()
+		if urlOp == getPreSignedUrl {
+			preSignedUrl, err := s3Service.GetPreSignedUrl(ctx, bucket, key)
+			if err != nil {
+				return err
+			}
+			fmt.Println(preSignedUrl.URL)
+		} else if urlOp == putPreSignedUrl {
+			putUrl, err := s3Service.PutPreSignUrl(ctx, bucket, key)
+			handleErr(err)
+			fmt.Printf("Upload PreSigned URL: %v\n", putUrl.URL)
 		}
-		fmt.Println(preSignedUrl.URL)
-		return nil
-	},
-}
-
-var putPreSignedUrl = &cobra.Command{
-	Use:   "put-presigned-url",
-	Short: "Generate a Uploadable presigned url",
-	Long:  "Generate a Uploadable presigned url",
-	Args:  cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		bucket, sfp := args[0], args[1]
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		cc, err := retrieveConfig(cmd.Context())
-		if err != nil {
-			return err
-		}
-		putUrl, err := cc.PutPreSignUrl(ctx, bucket, sfp)
-		handleErr(err)
-		fmt.Printf("Upload PreSigned URL: %v\n", putUrl.URL)
 		return nil
 	},
 }
@@ -87,18 +94,21 @@ func retrieveConfig(ctx context.Context) (s3Wrapper.S3Config, error) {
 	return s3Config.(s3Wrapper.S3Config), nil
 }
 
-var uploadFile = &cobra.Command{
-	Use:   "upload-file",
+var s3UploadCmd = &cobra.Command{
+	Use:   "upload",
 	Short: "Upload a file to an s3 bucket via a pre-signed url",
 	Long:  "Upload a file to an s3 bucket via a pre-signed url",
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		putUrl, filePath := args[0], args[1]
 		cc, err := retrieveConfig(cmd.Context())
+		s3Service := s3Wrapper.S3Service{
+			Config: cc,
+		}
 		if err != nil {
 			return err
 		}
-		ue := cc.UploadToBucket(putUrl, filePath)
+		ue := s3Service.UploadToBucket(putUrl, filePath)
 		if ue != nil {
 			log.Println("successfully uploaded file, path: {}", filePath)
 		}
@@ -107,9 +117,10 @@ var uploadFile = &cobra.Command{
 }
 
 func Execute() {
-	rootCmd.AddCommand(getPreSignedUrl)
-	rootCmd.AddCommand(putPreSignedUrl)
-	rootCmd.AddCommand(uploadFile)
+	rootCmd.AddCommand(s3Cmd)
+	s3UrlCmd.Flags().String("preSignedUrl", "get", "use get/put to generate get/put preSigned url")
+	s3Cmd.AddCommand(s3UrlCmd)
+	s3Cmd.AddCommand(s3UploadCmd)
 	if err := rootCmd.Execute(); err != nil {
 		_, err := fmt.Fprintf(os.Stderr, "error executing command: %v", err)
 		handleErr(err)
