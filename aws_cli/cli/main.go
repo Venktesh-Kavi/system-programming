@@ -1,9 +1,9 @@
 package main
 
 import (
-	"aws-go-slate/cli"
+	"acli/cmd"
 )
 
 func main() {
-	cli.Execute()
+	cmd.Execute()
 }

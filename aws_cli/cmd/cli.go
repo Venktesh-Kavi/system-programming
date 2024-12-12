@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 /**
 A command line utility duplicating the functionality of aws s3 cli commands. Purely done to try out Go AWS SDK interactions and the cli is done as an alternative to trigger the services without a conventional webserver.
@@ -8,6 +8,7 @@ import (
 	s3Wrapper "aws-go-slate/s3wrapper"
 	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
 	"log"

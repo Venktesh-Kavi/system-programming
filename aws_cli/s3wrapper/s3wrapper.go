@@ -24,6 +24,7 @@ type S3ServiceI interface {
 type S3Service struct {
 	Config S3Config
 }
+
 type S3Config struct {
 	cfg    aws.Config
 	client *s3.Client

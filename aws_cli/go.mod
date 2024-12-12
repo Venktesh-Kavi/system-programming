@@ -1,4 +1,4 @@
-module aws-go-slate
+module acli
 
 go 1.23.3
 
