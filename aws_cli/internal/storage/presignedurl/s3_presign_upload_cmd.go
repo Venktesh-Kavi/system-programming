@@ -1,11 +1,11 @@
 package presignedurl
 
 import (
-	"github.com/aws/aws-sdk-go-v2/aws"
+	"acli/pkg"
 	"github.com/spf13/cobra"
 )
 
-func NewUploadPreSignCmd(cfg aws.Config) *cobra.Command {
+func NewUploadPreSignCmd(cfg pkg.ConfigWrapper) *cobra.Command {
 	uploadPreSignCmd := &cobra.Command{
 		Use:       "presign",
 		Short:     "pre-sign s3 url for upload",

@@ -1,18 +1,18 @@
 package presignedurl
 
 import (
-	"github.com/aws/aws-sdk-go-v2/aws"
+	ss "acli/internal/storage"
+	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/cobra"
+	"log"
+	"time"
 )
 
 // I need options so that I can store and use it later
-type S3PreSignOption struct {
-	ObjectId string
-	S3Client func(cfg aws.Config) *s3.Client
-}
 
-func NewS3PreSignCmd(cfg aws.Config) *cobra.Command {
+func NewS3PreSignCmd(s3Cfg ss.S3Config) *cobra.Command {
 	preSignCmd := &cobra.Command{
 		Use:   "presign",
 		Short: "pre-sign s3 url",
@@ -20,12 +20,28 @@ func NewS3PreSignCmd(cfg aws.Config) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			objectId := args[0]
-			return runPreSignedUrl(objectId)
+			return runPreSignedUrl(s3Cfg, objectId)
 		},
 	}
-
 	return preSignCmd
 }
-func runPreSignedUrl(objectId string) error {
 
+func runPreSignedUrl(s3Cfg ss.S3Config, objectId string) error {
+	if s3Cfg.S3Client == nil {
+		log.Fatalf("s3 client is nil")
+	}
+	preSignedClient := s3.NewPresignClient(s3Cfg.S3Client())
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	pr, err := preSignedClient.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: &bucket,
+		Key:    &objectId},
+		func(opts *s3.PresignOptions) {
+			opts.Expires = 10 * time.Minute
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get object, bucket: %s, objId: %s, error: %w", bucket, objId, err)
+	}
+	return pr, nil
 }
