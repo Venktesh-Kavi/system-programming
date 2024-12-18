@@ -27,7 +27,3 @@ func loadConfig(ctx context.Context, profile string) func() aws.Config {
 func NewS3Client(cfg pkg.ConfigWrapper, opts ...func(options *s3.Options)) *s3.Client {
 	return s3.NewFromConfig(cfg.ConfigFn(), opts...)
 }
-
-func NewPreSignClient(cfg pkg.ConfigWrapper, opts ...func(options *s3.PresignOptions)) *s3.PresignClient {
-	return s3.NewPresignClient(NewS3Client(cfg), opts...)
-}

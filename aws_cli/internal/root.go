@@ -1,7 +1,7 @@
 package internal
 
 import (
-	ss "acli/internal/storage"
+	"acli/internal/storage"
 	"acli/pkg"
 	"acli/pkg/factory"
 	"context"
@@ -10,7 +10,7 @@ import (
 
 const profileFlag = "profile"
 
-func Main() {
+func Start() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	const version = "v0.1"
@@ -27,5 +27,5 @@ func Main() {
 		},
 	}
 	rootCmd.Flags().StringP(profileFlag, "p", "default", "aws profile to work with")
-	rootCmd.AddCommand(ss.NewCmdStorage(cfg))
+	rootCmd.AddCommand(storage.NewCmdStorage(cfg))
 }
