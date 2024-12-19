@@ -1,7 +1,15 @@
 package main
 
-import "acli/internal"
+import (
+	"acli/internal"
+	"fmt"
+)
 
 func main() {
-	internal.Start()
+	fmt.Println("application started")
+	cmd := internal.Start()
+	err := cmd.Execute()
+	if err != nil {
+		return
+	}
 }

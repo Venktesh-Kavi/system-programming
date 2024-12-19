@@ -5,9 +5,11 @@ import (
 	"acli/internal/storage/upload"
 	"acli/pkg"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 func NewCmdStorage(cfg pkg.ConfigWrapper) *cobra.Command {
+	log.Println("started s3 command")
 	var s3Cmd = &cobra.Command{
 		Use:   "s3 <command>",
 		Short: "Operations on the S3 resource",

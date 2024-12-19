@@ -8,6 +8,7 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/cobra"
+	"log"
 	"time"
 )
 
@@ -17,7 +18,6 @@ type PreSignedConfig struct {
 }
 
 func NewS3PreSignCmd(cfg pkg.ConfigWrapper) *cobra.Command {
-
 	preSignCmd := &cobra.Command{
 		Use:       "presign get",
 		Short:     "pre-sign s3 url",
@@ -30,6 +30,7 @@ func NewS3PreSignCmd(cfg pkg.ConfigWrapper) *cobra.Command {
 				return err
 			}
 			objectId := args[0]
+			log.Println("received bucket: ", bucketVal)
 			preSignClient := api.NewPreSignClient(cfg)
 			pr, err := runPreSignedUrl(preSignClient, bucketVal, objectId)
 			if err != nil {
@@ -46,6 +47,7 @@ func NewS3PreSignCmd(cfg pkg.ConfigWrapper) *cobra.Command {
 }
 
 func runPreSignedUrl(api api.PreSignClientInterface, bucket, objectId string) (*v4.PresignedHTTPRequest, error) {
+	log.Println("running presign client api call")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	pr, err := api.GetObjectInput(ctx, &s3.GetObjectInput{

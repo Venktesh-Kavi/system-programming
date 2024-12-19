@@ -13,7 +13,7 @@ import (
 
 func TestPreSignCmd(t *testing.T) {
 	cfg := factory.NewConfigUtil(context.Background(), "default")
-	preSignCmd := NewS3PreSignCmd(cfg, "test")
+	preSignCmd := NewS3PreSignCmd(cfg)
 	if preSignCmd == nil {
 		t.Fatalf("Expected NewS3PreSignCmd to return a valid cobra command, got nil")
 	}
@@ -22,7 +22,7 @@ func TestPreSignCmd(t *testing.T) {
 		t.Fatalf("Expected ValidArgs to be [\"object id\"], got %v", preSignCmd.ValidArgs)
 	}
 
-	if preSignCmd.Use != "presign" {
+	if preSignCmd.Use != "presign get" {
 		t.Fatalf("Expected Use to be \"presign\", got %v", preSignCmd.Use)
 	}
 }
@@ -77,13 +77,12 @@ func TestRunPreSignUrlFunc(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := runPreSignedUrl(tt.client(t), tt.bucket, tt.objectId)
-			expected := &v4.PresignedHTTPRequest{URL: "https://test.com"}
-			if !reflect.DeepEqual(got, expected) {
-				t.Fatalf("got %v, expected %v\n", got, expected)
+			if !reflect.DeepEqual(got, tt.expected) {
+				t.Fatalf("got %v, expected %v\n", got, tt.expected)
 			}
 
 			if tt.wantsErr {
-				if err != nil {
+				if err == nil {
 					t.Fatalf("expected error but got nil")
 				}
 			}
