@@ -11,8 +11,8 @@ func Lex(input string) ([]Token, error) {
 	lineNo, colNo := 1, 1
 	runes := []rune(input) // Declare runes outside the loop
 	for len(runes) > 0 {
-
-		// Ignore white spaces
+		token := Token{}
+		var err error
 		if unicode.IsSpace(runes[0]) {
 			if runes[0] == '\n' {
 				lineNo++
@@ -22,19 +22,27 @@ func Lex(input string) ([]Token, error) {
 			continue
 		}
 
-		token, newRunes, err := lexString(runes, lineNo, colNo) // Use newRunes for the result
+		token, runes, err = lexString(runes, lineNo, colNo) // Use newRunes for the result
 		if err != nil {
 			return []Token{}, err
 		} else if token != (Token{}) {
 			tokens = append(tokens, token)
-			runes = newRunes // Update the outer runes
-			colNo += len(token.value)
+			colNo += len(token.value) + 2
+			continue
 		}
 
 		if _, ok := JsonSyntaxChars[string(runes[0])]; ok {
-			
+			tokens = append(tokens, Token{
+				kind:   JsonSyntax,
+				value:  string(runes[0]),
+				lineNo: lineNo,
+				colNo:  colNo,
+			})
+			runes = runes[1:]
+			colNo++
+		} else {
+			return tokens, fmt.Errorf("unexpected character %s, at lineNo %d and colNo %d", string(runes[0]), lineNo, colNo)
 		}
-		break
 	}
 	return tokens, nil
 }
@@ -62,28 +70,25 @@ func lexString(runes []rune, lineNo, colNo int) (Token, []rune, error) {
 		return Token{}, runes, nil
 	}
 
+	runes = runes[1:]
+
 	escaped := false
-	for i, char := range runes[1:] {
+
+	for i, char := range runes {
 		if escaped {
 			switch char {
-			case 'c', 'b', 'f', 'n', 'r', 't', '\\', '"':
+			case 'b', 'f', 'n', 'r', 't', '\\', '/', '"':
 				escaped = false
 			default:
-				return Token{}, runes, fmt.Errorf("invalid escaped character '%c', at lineNo: %d, colNo: %d", char, lineNo, colNo)
+				return Token{}, runes, fmt.Errorf("invalid escaped character '\\%s' at line %d, col %d", string(char), lineNo, i+colNo)
 			}
 		} else if char == '\\' {
 			escaped = true
 		} else if char == '"' {
-			return Token{
-				kind:   JsonSyntax,
-				value:  string(runes[1 : i+1]),
-				lineNo: lineNo,
-				colNo:  colNo,
-			}, runes[i:], nil
+			return Token{JsonString, string(runes[:i]), lineNo, colNo}, runes[i+1:], nil
 		}
 	}
 
 	// this can happen  only when ending double quote is not found.
-	// TODO: handle very long inputs without ending double quotes.
 	return Token{}, runes, errors.New("ending double quote not found")
 }

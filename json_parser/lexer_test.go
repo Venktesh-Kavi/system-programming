@@ -15,7 +15,7 @@ func TestLexing(t *testing.T) {
 	}{
 		{
 			name:  "json with empty space as first character",
-			input: " {\"foo\"}",
+			input: ` {"foo"}`,
 			want: []Token{
 				{
 					kind:   JsonSyntax,
@@ -24,23 +24,12 @@ func TestLexing(t *testing.T) {
 					colNo:  2,
 				},
 				{
-					kind:   JsonSyntax,
-					value:  "\"",
-					lineNo: 1,
-					colNo:  3,
-				},
-				{
 					kind:   JsonString,
 					value:  "foo",
 					lineNo: 1,
-					colNo:  4,
+					colNo:  3,
 				},
-				{
-					kind:   JsonSyntax,
-					value:  "\"",
-					lineNo: 1,
-					colNo:  5,
-				},
+				{kind: JsonSyntax, value: "}", lineNo: 1, colNo: 8},
 			},
 		},
 	}
@@ -55,23 +44,5 @@ func TestLexing(t *testing.T) {
 				t.Fatalf("test %d:\ngot  %v\nwant %v", i, got, tc.want)
 			}
 		})
-	}
-}
-
-func TestLexSyntax(t *testing.T) {
-	input := "{}"
-	gotToken, gotRune := lexSyntax([]rune(input), 1, 1)
-	expectedToken := Token{
-		kind:   JsonSyntax,
-		value:  "{",
-		lineNo: 1,
-		colNo:  1,
-	}
-	if !reflect.DeepEqual(gotToken, expectedToken) {
-		t.Fatalf("test got  %v\nwant %v", gotToken, expectedToken)
-	}
-
-	if len(input)-1 != len(gotRune) {
-		t.Fatalf("test got  %v\nwant %v", len(gotRune), len(input))
 	}
 }
