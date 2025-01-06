@@ -15,21 +15,13 @@ func TestLexing(t *testing.T) {
 	}{
 		{
 			name:  "json with empty space as first character",
-			input: ` {"foo"}`,
+			input: ` {"foo": "bar"}`,
 			want: []Token{
-				{
-					kind:   JsonSyntax,
-					value:  "{",
-					lineNo: 1,
-					colNo:  2,
-				},
-				{
-					kind:   JsonString,
-					value:  "foo",
-					lineNo: 1,
-					colNo:  3,
-				},
-				{kind: JsonSyntax, value: "}", lineNo: 1, colNo: 8},
+				{kind: JsonSyntax, value: "{", lineNo: 1, colNo: 2},
+				{kind: JsonString, value: "foo", lineNo: 1, colNo: 3},
+				{kind: JsonSyntax, value: ":", lineNo: 1, colNo: 8},
+				{kind: JsonString, value: "bar", lineNo: 1, colNo: 10},
+				{kind: JsonSyntax, value: "}", lineNo: 1, colNo: 15},
 			},
 		},
 	}
