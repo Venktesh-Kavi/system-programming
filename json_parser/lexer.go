@@ -31,6 +31,15 @@ func Lex(input string) ([]Token, error) {
 			continue
 		}
 
+		token, runes, err = lexBoolean(runes, lineNo, colNo)
+		if err != nil {
+			return []Token{}, err
+		} else if token != (Token{}) {
+			tokens = append(tokens, token)
+			colNo += len(token.value)
+			continue
+		}
+
 		if _, ok := JsonSyntaxChars[string(runes[0])]; ok {
 			tokens = append(tokens, Token{
 				kind:   JsonSyntax,
@@ -49,6 +58,16 @@ func Lex(input string) ([]Token, error) {
 
 func lexNumber(runes []rune, lineNo, colNo int) (Token, error) {
 	return Token{}, nil
+}
+
+func lexBoolean(runes []rune, lineNo, colNo int) (Token, []rune, error) {
+	// rcx rune can have a len greater than jsonTrue, how to identify till which index to compare?
+	if CompareRuneSlices(runes, []rune(JsonTrue), len(JsonTrue)) {
+		return Token{kind: JsonBoolean, value: JsonTrue, lineNo: lineNo, colNo: colNo}, runes[len(JsonTrue):], nil
+	} else if CompareRuneSlices(runes, []rune(JsonFalse), len(JsonFalse)) {
+		return Token{kind: JsonBoolean, value: JsonFalse, lineNo: lineNo, colNo: colNo}, runes[len(JsonFalse):], nil
+	}
+	return Token{}, runes, nil
 }
 
 //func lexNumber(runes []rune, lineNo, colNo int) (Token, error) {

@@ -24,6 +24,23 @@ func TestLexing(t *testing.T) {
 				{kind: JsonSyntax, value: "}", lineNo: 1, colNo: 15},
 			},
 		},
+		{
+			name:  "json with boolean value",
+			input: `{"foo": true}`,
+			want: []Token{
+				{kind: JsonSyntax, value: "{", lineNo: 1, colNo: 1},
+				{kind: JsonString, value: "foo", lineNo: 1, colNo: 2},
+				{kind: JsonSyntax, value: ":", lineNo: 1, colNo: 7},
+				{kind: JsonBoolean, value: "true", lineNo: 1, colNo: 9},
+				{kind: JsonSyntax, value: "}", lineNo: 1, colNo: 13},
+			},
+		},
+		{
+			name:   "error cases",
+			input:  `{{`,
+			want:   []Token{},
+			hasErr: true,
+		},
 	}
 
 	for i, tc := range tCases {

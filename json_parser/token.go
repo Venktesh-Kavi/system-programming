@@ -10,6 +10,11 @@ const (
 	JsonSyntax
 )
 
+const (
+	JsonTrue  = "true"
+	JsonFalse = "false"
+)
+
 var JsonSyntaxChars = map[string]struct{}{
 	"{": {},
 	"}": {},
