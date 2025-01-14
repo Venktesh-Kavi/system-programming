@@ -50,6 +50,6 @@ type Token struct {
 	colNo  int
 }
 
-func UnExpectedTokenError(token Token) error {
-	return fmt.Errorf("unexpected token found: %s, lineNo: %d, colNo: %d", convertKindToString(token.kind), token.lineNo, token.colNo)
+func UnExpectedTokenError(token Token, msg string) error {
+	return fmt.Errorf("unexpected token found: %s, lineNo: %d, colNo: %d, reason: %s", convertKindToString(token.kind), token.lineNo, token.colNo, msg)
 }
