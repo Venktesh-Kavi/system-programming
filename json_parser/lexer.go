@@ -70,20 +70,6 @@ func lexBoolean(runes []rune, lineNo, colNo int) (Token, []rune, error) {
 	return Token{}, runes, nil
 }
 
-//func lexNumber(runes []rune, lineNo, colNo int) (Token, error) {
-//	if !unicode.IsDigit(runes[0]) {
-//		return Token{}, nil
-//	}
-//
-//	var endsAt int = len(runes) - 1
-//	for i, c := range runes {
-//		if !unicode.IsNumber(c) && c != '.' && c != '_' {
-//			endsAt = i
-//			return Token{}, nil
-//		}
-//	}
-//}
-
 func lexString(runes []rune, lineNo, colNo int) (Token, []rune, error) {
 	if runes[0] != '"' {
 		return Token{}, runes, nil

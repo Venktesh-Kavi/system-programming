@@ -43,31 +43,41 @@ func parseObject(tokens []Token) (map[string]any, error) {
 		return nil, UnExpectedTokenError(tokens[1], "unexpected type found, should be a json syntax \":\"")
 	}
 
-	if tokens[2].kind == '{' {
+	if tokens[2].kind == JsonSyntax && tokens[2].value == "{" {
 		rcxMap, err := parseObject(tokens[3:])
 		if err != nil {
 			return nil, UnExpectedTokenError(tokens[3], fmt.Sprintf("error parsing object: %v", err))
 		}
-		obj[tokens[1].value] = rcxMap
-	} else if tokens[2].kind == '[' {
+		obj[tokens[0].value] = rcxMap
+		return obj, nil
+	} else if tokens[2].kind == JsonSyntax && tokens[2].value == "[" {
 		rcxMap, err := parseArray(tokens[3:])
 		if err != nil {
 			return nil, UnExpectedTokenError(tokens[3], fmt.Sprintf("error parsing array: %v", err))
 		}
-		obj[tokens[1].value] = rcxMap
+		obj[tokens[0].value] = rcxMap
+		return obj, nil
 	} else if !isValueKind(tokens[2].kind) {
 		return nil, UnExpectedTokenError(tokens[2], "unexpected value type found, should be string, number, boolean or null")
 	}
 
+	var isMultiLine bool
 	if tokens[3].kind == JsonSyntax && tokens[3].value == "," {
+		// add existing line item to map
+		obj[tokens[0].value] = tokens[2].value
 		rcxMap, err := parseObject(tokens[4:])
+		if err != nil {
+			return nil, UnExpectedTokenError(tokens[3], fmt.Sprintf("error parsing object: %v", err))
+		}
 		maps.Copy(obj, rcxMap)
-		return obj, err
-	} else if tokens[3].kind == JsonSyntax && tokens[3].value == "}" {
+		isMultiLine = true
+	}
+	if !isMultiLine && tokens[3].kind != JsonSyntax && tokens[3].value != "}" {
+		return nil, UnExpectedTokenError(tokens[3], fmt.Sprintf("unexpected json syntax with closing braces!"))
+	} else {
 		obj[tokens[0].value] = tokens[2].value
 		return obj, nil
 	}
-	return nil, UnExpectedTokenError(tokens[3], "unexpected type found, should be a json syntax \",\" or \"}\"")
 }
 
 func isValueKind(kind TokenKind) bool {

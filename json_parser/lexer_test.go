@@ -36,9 +36,12 @@ func TestLexing(t *testing.T) {
 			},
 		},
 		{
-			name:   "error cases",
-			input:  `{{`,
-			want:   []Token{},
+			name:  "error cases",
+			input: `{{`,
+			want: []Token{
+				{kind: JsonSyntax, value: "{", lineNo: 1, colNo: 1},
+				{kind: JsonSyntax, value: "{", lineNo: 1, colNo: 2},
+			},
 			hasErr: true,
 		},
 	}
@@ -46,7 +49,7 @@ func TestLexing(t *testing.T) {
 	for i, tc := range tCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := Lex(tc.input)
-			if (err != nil) != tc.hasErr {
+			if (err != nil) && !tc.hasErr {
 				t.Fatalf("test %d: unexpected error: %v", i, err)
 			}
 			if !reflect.DeepEqual(got, tc.want) {

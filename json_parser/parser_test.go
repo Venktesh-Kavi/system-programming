@@ -11,6 +11,7 @@ func TestParse(t *testing.T) {
 		hasErr   bool
 		input    string
 		expected map[string]any
+		errCause string
 	}{
 		{
 			name:   "test parsing",
@@ -23,15 +24,28 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:     "error parsing",
+			hasErr:   true,
+			input:    `{{`,
+			expected: map[string]any{},
+			errCause: "unexpected token found: JsonSyntax, lineNo: 1, colNo: 2, reason: unexpected type found, should begin with a json string",
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			tokens, err := Lex(tc.input)
+			got, err := Parse(tokens)
+
 			if !tc.hasErr && err != nil {
 				t.Fatalf("unexpected error: %s", err)
 			}
-			got, err := Parse(tokens)
+
+			if tc.hasErr && err != nil {
+				assert.EqualError(t, err, tc.errCause)
+				return
+			}
 			assert.Equal(t, tc.expected, got)
 		})
 	}
