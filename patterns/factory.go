@@ -13,11 +13,46 @@ func main() {
 	ss := strings.Split(string(buf), ",")
 
 	mapToIceCreamKind(ss[1])
-	eatIceCream(IceCreamOption{ss[0], ss[1]})
+	ic := eatIceCream(IceCreamOption{ss[0], ss[1]})
+	fmt.Println(ic)
 }
 
-type IceCreamFactory interface {
-	createIceCream()
+type IceCreamKind int
+type ToppingKind int
+
+const (
+	NORMAL IceCreamKind = iota
+	GELLATO
+	CREAMY
+)
+
+const (
+	CHOC ToppingKind = iota
+	SHERBATH
+	CARAMEL
+)
+
+type IceCream interface{}
+
+type CommonIceCream struct {
+	IceCream
+	cone     bool
+	size     string
+	toppings []ToppingKind
+}
+
+type GellatoIceCream struct {
+	CommonIceCream
+	gellatoPull int
+}
+
+type NormalIceCream struct {
+	CommonIceCream
+}
+
+type CreamyIceCream struct {
+	CommonIceCream
+	creamWip bool
 }
 
 type IceCreamOption struct {
@@ -25,13 +60,32 @@ type IceCreamOption struct {
 	variety string
 }
 
-type IceCreamKind int
+type IceCreamFactory interface {
+	createIceCream()
+}
+type GellatoIceCreamFactory struct{}
 
-const (
-	NORMAL IceCreamKind = iota
-	GELLATO
-	CREAMY
-)
+func (g GellatoIceCreamFactory) createIceCream(flavour string, size string) GellatoIceCream {
+	if flavour == "vanilla" {
+		return GellatoIceCream{
+			CommonIceCream: CommonIceCream{
+				cone:     false,
+				size:     size,
+				toppings: []ToppingKind{CHOC},
+			},
+			gellatoPull: 3,
+		}
+	} else {
+		return GellatoIceCream{
+			CommonIceCream: CommonIceCream{
+				cone:     false,
+				size:     size,
+				toppings: []ToppingKind{SHERBATH},
+			},
+			gellatoPull: 1,
+		}
+	}
+}
 
 func mapToIceCreamKind(flavour string) IceCreamKind {
 	if flavour == "NORMAL" {
@@ -45,15 +99,18 @@ func mapToIceCreamKind(flavour string) IceCreamKind {
 	}
 }
 
-func eatIceCream(option IceCreamOption) {
-	switch option.variety {
+func eatIceCream(option IceCreamOption) IceCream {
+	switch mapToIceCreamKind(option.variety) {
 	case NORMAL:
 		fmt.Println("Normal Icecream chosen")
 	case GELLATO:
-		fmt.Println("Gelator Icecream chosen")
+		g := GellatoIceCreamFactory{}
+		return g.createIceCream("vanilla", "M")
 	case CREAMY:
 		fmt.Println("Creamy Icecream chosen")
 	default:
 		fmt.Println("Unknown variety")
+		panic("nothing to eat")
 	}
+	return nil
 }
