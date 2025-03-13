@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type Data struct {
@@ -15,12 +16,45 @@ type Data struct {
 }
 
 func Init() {
-	fmt.Println("reading quiz file")
 	f := openFile("quiz.txt")
 	defer f.Close()
+	ch := make(chan string, 1)
+	score := 0
+	lines := 0
 	for d := range iterFile(f) {
-		fmt.Println(d.question)
+		go readAnswer(d.question, ch)
+		t := time.NewTimer(10 * time.Second)
+		ans, isRcx := isAnswerReceived(ch, t)
+		if isRcx {
+			if ans == d.answer {
+				score++
+			}
+		}
+		lines++
 	}
+	fmt.Printf("### Your Score: %d/%d\n", score, lines)
+}
+
+func isAnswerReceived(ch <-chan string, t *time.Timer) (string, bool) {
+	select {
+	case ans := <-ch:
+		{
+			fmt.Printf("answer received from user: %s\n", ans)
+			return ans, true
+		}
+	case ct := <-t.C:
+		fmt.Printf("time out: %v\n", ct)
+		return "", false
+	}
+}
+
+func readAnswer(q string, ch chan string) {
+	fmt.Println("#Question: ", q)
+	fmt.Println("Pls provide an answer")
+	sc := bufio.NewScanner(os.Stdin)
+	sc.Scan()
+	ans := sc.Text()
+	ch <- ans
 }
 
 func openFile(fn string) *os.File {
@@ -46,9 +80,7 @@ func iterFile(f *os.File) iter.Seq[Data] {
 				fmt.Println("empty line")
 			}
 			ss := strings.Split(line, ",")
-			fmt.Println("read line: ", line)
 			d := Data{ss[0], ss[1]}
-
 			if !yield(d) {
 				break
 			}
