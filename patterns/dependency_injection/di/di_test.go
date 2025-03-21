@@ -1,9 +1,8 @@
-package main
+package di
 
 import "testing"
 
 // How to mock the UserIdByName method. it should produce a dummy result.
-
-func TestPerformLogic(t *testing.T) {
+func TestSayHelloFunc(t *testing.T) {
 
 }

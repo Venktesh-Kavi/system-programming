@@ -1,4 +1,4 @@
-package main
+package di
 
 import (
 	"fmt"
@@ -32,6 +32,13 @@ type Controller struct {
 	logic Logic
 }
 
+func NewController(l Logger, logic Logic) Controller {
+	return Controller{
+		l:     l,
+		logic: logic,
+	}
+}
+
 // to adhere to DataStore define a stateful type SimpleDataSource.
 type SimpleDataStore struct {
 	store map[string]string
@@ -46,7 +53,6 @@ func (sd SimpleDataStore) UserNameById(id string) (string, bool) {
 	name, ok := sd.store[id]
 	return name, ok
 }
-
 
 func NewSimpleDataStore() SimpleDataStore {
 	return SimpleDataStore{
@@ -63,8 +69,15 @@ type SimpleLogic struct {
 	l  Logger
 }
 
-func UserNotFoundError(user string) error {
-	return fmt.Errorf("user not found, user:%s", user)
+func NewSimpleLogic(ds DataStore, l Logger) SimpleLogic {
+	return SimpleLogic{
+		ds: ds,
+		l:  l,
+	}
+}
+
+func UserNotFoundError(userID string) error {
+	return fmt.Errorf("user not found, user:%s", userID)
 }
 
 func (c Controller) SayHello(w http.ResponseWriter, r *http.Request) {
@@ -85,7 +98,7 @@ func (s SimpleLogic) SayHello(userId string) (string, error) {
 	if !ok {
 		return "", UserNotFoundError(userId)
 	}
-	return fmt.Sprintf("saying hello to user:%s, id:%s\n", name, userId), nil
+	return fmt.Sprintf("Hello user:%s, id:%s\n", name, userId), nil
 }
 
 func (s SimpleLogic) SayBye(userId string) error {
@@ -94,21 +107,6 @@ func (s SimpleLogic) SayBye(userId string) error {
 	if !ok {
 		return UserNotFoundError(name)
 	}
-	fmt.Printf("saying bye to user:%s, id:%s\n", name, userId)
+	fmt.Printf("bye to user:%s, id:%s\n", name, userId)
 	return nil
-}
-
-func main() {
-	sds := NewSimpleDataStore()
-	l := SimpleLogic{
-		ds: sds,
-		l:  LoggerAdapter(LogOutput),
-	}
-	c := Controller{
-		l:     LoggerAdapter(LogOutput),
-		logic: l,
-	}
-
-	http.HandleFunc("/sayHello", c.SayHello)
-	http.ListenAndServe(":8080", nil)
 }
