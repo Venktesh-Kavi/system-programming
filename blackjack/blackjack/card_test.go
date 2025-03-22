@@ -43,3 +43,22 @@ func TestGetDecks(t *testing.T) {
 		})
 	}
 }
+func TestSorting(t *testing.T) {
+	t.Run("default sorting", func(t *testing.T) {
+		cards := InitCards(DefaultSort)
+		if cards[0].rank != ACE {
+			t.Errorf("Expected first card to be ACE, got %v", cards[0].rank)
+		}
+	})
+	t.Run("custom sorting", func(t *testing.T) {
+		cs := func(cards []Card) func(i, j int) bool {
+			return func(i, j int) bool {
+				return absRank(cards[i]) > absRank(cards[j])
+			}
+		}
+		cards := InitCards(CustomSort(cs))
+		if cards[0].rank != KING {
+			t.Errorf("Expected first card to be KING, got %v", cards[0].rank)
+		}
+	})
+}
