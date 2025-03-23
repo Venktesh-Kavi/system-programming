@@ -62,3 +62,12 @@ func TestSorting(t *testing.T) {
 		}
 	})
 }
+
+func TestDefaultShuffle(t *testing.T) {
+	t.Run("shuffle the cards", func(t *testing.T) {
+		cards := InitCards(DefaultShuffle)
+		if cards[0].suit == 0 && cards[0].rank == 0 {
+			t.Errorf("Expected cards to be shuffled, got %v", cards)
+		}
+	})
+}

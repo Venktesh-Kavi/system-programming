@@ -2,6 +2,7 @@
 package blackjack
 
 import (
+	"math/rand"
 	"sort"
 )
 
@@ -84,6 +85,14 @@ func CustomSort(less func(cards []Card) func(i, j int) bool) func(cards []Card) 
 		sort.Slice(cards, less(cards))
 		return cards
 	}
+}
+
+func DefaultShuffle(cards []Card) []Card {
+	for i := 0; i < len(cards); i++ {
+		ri := rand.Intn(len(cards)-i) + i
+		cards[i], cards[ri] = cards[ri], cards[i]
+	}
+	return cards
 }
 
 func DefaultSort(cards []Card) []Card {
