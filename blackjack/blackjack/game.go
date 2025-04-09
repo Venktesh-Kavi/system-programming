@@ -1,6 +1,11 @@
 package blackjack
 
-import "github.com/google/uuid"
+import (
+	"bufio"
+	"fmt"
+	"github.com/google/uuid"
+	"os"
+)
 
 type Game struct {
 	dealerId uuid.UUID
@@ -14,5 +19,8 @@ type Round struct {
 }
 
 func Start() {
-
+	fmt.Println("#### Starting black jack game ####")
+	fmt.Println("")
+	sc := bufio.NewScanner(os.Stdin)
+	sc.Split(bufio.ScanWords)
 }

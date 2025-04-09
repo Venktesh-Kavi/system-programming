@@ -118,3 +118,13 @@ func GetDecks(numOfDecks int) []CardDeck {
 	}
 	return cardDecks
 }
+
+func FlattenCardDeck(cardDecks []CardDeck) []Card {
+	cards := make([]Card, len(cardDecks)*52)
+	for _, cardDeck := range cardDecks {
+		for i, card := range cardDeck.cards {
+			cards[i] = card
+		}
+	}
+	return cards
+}

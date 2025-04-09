@@ -71,3 +71,17 @@ func TestDefaultShuffle(t *testing.T) {
 		}
 	})
 }
+
+func TestFlattenCardDeck(t *testing.T) {
+	t.Run("flatten the card decks", func(t *testing.T) {
+		cd := GetDecks(3)
+		cards := FlattenCardDeck(cd)
+		if len(cards) != 156 {
+			t.Errorf("Expected 156 cards, got %v", len(cards))
+		}
+
+		if cards[13].rank != ACE && cards[13].suit == DIAMOND {
+			t.Errorf("Expected first card in the next suite to be ACE, got %v", cards[14].rank)
+		}
+	})
+}
