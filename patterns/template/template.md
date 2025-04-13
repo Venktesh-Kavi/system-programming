@@ -1,4 +1,4 @@
-# Template & Strategy Pattern
+# Design Patterns Notes
 
 ## Template Method
 
@@ -142,11 +142,28 @@ public static void main(String[] args) {
 - Template Method: Base class controls the algorithm flow.
 - Strategy: Each strategy controls its own flow
 
+## Stratergy Pattern Detailed Notes
+
+- Stratergy is family of algorithms, allowing the clients to be not impacted when one of algorithms change.
+- if a collection -> list had a sorting algorithm, we can swap it with another sorting algorithm, without impacting the client.
+
+Refer manual notes
+
+```java
+
+
+```
+
+
+---
+
 ## SOLID
 
 What is Single Responsibility required?
 
 - A class must have only a single reason to change, which means it should have only one job.
+
+Sometimes in startups or nascent stages, one need not wait for the requirement to find the change. The change can be anticipated by the developer and the the code made to change for single reason or have a single job.
 
 What if we violate this, what can go wrong?.
 
