@@ -115,6 +115,13 @@ public static void main(String[] args) {
 }
 ```
 
+## Facade Pattern
+
+* A unified interface wiring up multiple abstract interface which the sub-system has. Provides an abstration for the client and makes it loosely coupled. Law of Delmeter (Principle of least knowledge (an object should know only about its immediate neighbours)).
+
+Refer manual notes.
+
+
 ## Summary
 
 ### Algorithm Structure:
