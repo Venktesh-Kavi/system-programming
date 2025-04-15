@@ -441,3 +441,222 @@ Use inheritance when:
 2. Code reusability: If most of the methods of the super class are reusable and meaningful, then use inheritance.
 3. Base class is stable and unlikely to change.
 4. Base class is fixed and doesn't need to change. Inheritnace locks you into static type hierarchy.
+
+
+
+## When to use Inheritance? (Okhravi)
+
+- Use inheritance when you require both sub-type polymorphism and code reuse from the base class.
+
+Example 1: Hierarchical code reuse but no sub type polymorphism, then use composition.
+```java
+
+class Parent {
+    void method1();
+}
+
+class ChildA extends Parent {
+    public void method2() {
+        // do something
+        super.method1(); // uses method1 from parent
+    }
+}
+
+class ChildB extends Parent {
+    public void method3() {
+        // do something
+        super.method1(); // uses method1 from parent
+    }
+}
+
+// Use object composition
+class ChildA {
+    private Reusable reusable; // ChildA has a reusable.
+    public ChildA(Reusable reusable) {
+        this.reusable = reusable;
+    }
+
+    public void method2() {
+        this.reusable.method1();
+    }
+}
+
+class ChildB {
+    private Reusable reusable; // ChildB has a reusable.
+    public ChildB(Reusable reusable) {
+        this.reusable = reusable;
+    }
+    public void method3() {
+        this.reusable.method1();
+    }
+}
+
+class Reusable {
+    public void method1() {
+
+    }
+}
+```
+- If inheritance is used just to hierarchically reuse the code from method 1, then it might not be a right fit for inheritance.
+
+Example 2: If the use case is just sub type polymorphism, use interface (which provides light weight polymorphism). As it allows the sub-types to implement multiple interfaces rather a single hierarchy (inheritance)
+
+```java
+class Parent {
+    public void method1() {
+
+    }
+}
+
+class ChildA extends Parent {
+    public void method2() {
+
+    }
+}
+
+class ChildB extends Parent {
+    public void method3() {
+
+    }
+}
+
+// Both method 2 and method 3 do not use method 1, inheritnace is introduced just for polymorphsim.
+
+// Solution
+interface Parent {
+    method();
+}
+
+class ChildA implements Parent {
+    public void method() {
+
+    }
+}
+
+class ChildB implements Parent {
+    public void method() {
+
+    }
+}
+
+// So if there is code reuse and polymorphism should we always use inheritance, NO using composition with interfaces is much flexible. 
+interface Parent {
+    method();
+} 
+
+class ChildA implements Parent {
+    private Reusable reusable; // use composition
+    public ChildA(Reusable reusable) {
+        this.reusable = reusable;
+    }
+    public void method() {
+        this.reusable.sharedMethod();
+    }
+}
+
+class ChildB implements Parent {
+    private Reusable reusable; // use composition
+    public ChildB(Reusable reusable) {
+        this.reusable = reusable;
+    }
+    public void method() {
+        this.reusable.sharedMethod();
+    }
+}
+
+// Reusable code between ChildA and ChildB 
+class Reusable {
+    public void sharedMethod() {
+
+    }
+}
+
+```
+
+## The only time one should sub type polymorphism
+
+- Use sub type polymorphism only when there is variation in behaviour and not data.
+- If not used for change in behaviours, conditionals are required.
+
+```java
+
+class IAttack {
+    private String name;
+    private String damage;
+}
+
+class Thunderbolt extends IAttack {
+    private String name;
+    private String damage;
+}
+
+class Fireball extends IAttack {
+    private String name;
+    private String damage;
+}
+```
+- The above is not a right use of polymorphism, as the different attach types only variations in data (name and damage).
+- The fireball and Thuderbolt do not require a class of their own, they rather object/instances of type attack.
+
+```java
+class ITarget {
+
+}
+
+interface IAttack {
+
+    void performAttack(ITarget target);
+}
+
+class Thunderbolt implements IAttack {
+    public void performAttack(ITarget target) {
+        target.health -= 10;
+    }
+}
+
+class Fireball implements IAttack {
+    public void performAttack(ITarget target) {
+        target.health -= 50;
+    }
+}
+```
+- Again this is not a right use of polymorphism, as the method attack just differentiates from what value the target health is reduced, which we can do via a simple class.
+- The Thunderbolt and Fireball do not require a class of their own, they rather object/instances of type attack.
+
+```java
+// better solution for above
+class Attack {
+    private String name;
+    private String damage;
+
+    public void peformAttack(ITarget target) {
+        target.health -= this.damage;
+    }
+}
+```
+
+Behaviour driven polymorphism, in the below example both attack and heal are types of move and they exhibit different behaviour. Attack just decrements the health of target wherease heal resets the health and the armour. This might be a right case of polymorphism.
+
+```java
+interface IMove {
+    void move(ITarget target);
+}
+
+class Attack implements IMove {
+
+    public void move(ITarget target) {
+        target.health -= this.damage;
+    }
+}
+
+class Heal implements IMove {
+    public void move(ITarget target) {
+        target.health = 100;
+        target.armor = 100
+    }
+}
+```
+
+
+
+
