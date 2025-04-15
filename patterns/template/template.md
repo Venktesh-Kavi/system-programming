@@ -117,10 +117,9 @@ public static void main(String[] args) {
 
 ## Facade Pattern
 
-* A unified interface wiring up multiple abstract interface which the sub-system has. Provides an abstration for the client and makes it loosely coupled. Law of Delmeter (Principle of least knowledge (an object should know only about its immediate neighbours)).
+- A unified interface wiring up multiple abstract interface which the sub-system has. Provides an abstration for the client and makes it loosely coupled. Law of Delmeter (Principle of least knowledge (an object should know only about its immediate neighbours)).
 
 Refer manual notes.
-
 
 ## Summary
 
@@ -160,7 +159,6 @@ Refer manual notes
 
 
 ```
-
 
 ---
 
@@ -442,13 +440,12 @@ Use inheritance when:
 3. Base class is stable and unlikely to change.
 4. Base class is fixed and doesn't need to change. Inheritnace locks you into static type hierarchy.
 
-
-
 ## When to use Inheritance? (Okhravi)
 
 - Use inheritance when you require both sub-type polymorphism and code reuse from the base class.
 
 Example 1: Hierarchical code reuse but no sub type polymorphism, then use composition.
+
 ```java
 
 class Parent {
@@ -497,6 +494,7 @@ class Reusable {
     }
 }
 ```
+
 - If inheritance is used just to hierarchically reuse the code from method 1, then it might not be a right fit for inheritance.
 
 Example 2: If the use case is just sub type polymorphism, use interface (which provides light weight polymorphism). As it allows the sub-types to implement multiple interfaces rather a single hierarchy (inheritance)
@@ -539,10 +537,10 @@ class ChildB implements Parent {
     }
 }
 
-// So if there is code reuse and polymorphism should we always use inheritance, NO using composition with interfaces is much flexible. 
+// So if there is code reuse and polymorphism should we always use inheritance, NO using composition with interfaces is much flexible.
 interface Parent {
     method();
-} 
+}
 
 class ChildA implements Parent {
     private Reusable reusable; // use composition
@@ -564,7 +562,7 @@ class ChildB implements Parent {
     }
 }
 
-// Reusable code between ChildA and ChildB 
+// Reusable code between ChildA and ChildB
 class Reusable {
     public void sharedMethod() {
 
@@ -595,6 +593,7 @@ class Fireball extends IAttack {
     private String damage;
 }
 ```
+
 - The above is not a right use of polymorphism, as the different attach types only variations in data (name and damage).
 - The fireball and Thuderbolt do not require a class of their own, they rather object/instances of type attack.
 
@@ -620,6 +619,7 @@ class Fireball implements IAttack {
     }
 }
 ```
+
 - Again this is not a right use of polymorphism, as the method attack just differentiates from what value the target health is reduced, which we can do via a simple class.
 - The Thunderbolt and Fireball do not require a class of their own, they rather object/instances of type attack.
 
@@ -657,6 +657,14 @@ class Heal implements IMove {
 }
 ```
 
+## What are Conditionals and how does sub type polymorphism overcome those?
 
+- if, switch statements (braches in code)
+- Polymorphism (dynamic dispatch). Animal (interface/abstract class) | Dog, Cat (implementations). Clients or users bind themselves to the abstraction (interface or the abstract class) rather than the concrete ones.
+- Sandi Metz also goes on to tell that for programming languages like small talk there is no conditional statements. Every conditional block can probably be expressed as sub type polymorphism.
 
+## References
 
+- Refactoring by Martin Fowler (https://www.amazon.com/gp/product/0201485672/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&tag=chrokh01-20&camp=1789&creative=9325&linkCode=as2&creativeASIN=0201485672&linkId=4851cbd7e14e7ce3cac05040f9a4b354)
+- Sandi Metz - 99 bottles of OOP and conferences
+- Christopher Okhravi design patterns
