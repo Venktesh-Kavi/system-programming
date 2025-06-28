@@ -1,0 +1,15 @@
+curl --location 'http://localhost:8080/api/clusters/local/topics/test/messages' \
+--header 'Accept: _/_' \
+--header 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+--header 'Connection: keep-alive' \
+--header 'Content-Type: application/json' \
+--header 'Origin: http://localhost:8080' \
+--header 'Sec-Fetch-Dest: empty' \
+--header 'Sec-Fetch-Mode: cors' \
+--header 'Sec-Fetch-Site: same-origin' \
+--header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36' \
+--header 'sec-ch-ua: "Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"' \
+--header 'sec-ch-ua-mobile: ?0' \
+--header 'sec-ch-ua-platform: "macOS"' \
+--header 'Cookie: ajs_anonymous_id=6fde153a-52ce-4cc5-9a06-24dc7f01283d' \
+--data '{"partition":0,"key":null,"content":"{\n  \"test\": \"blah\"\n}","keySerde":"String","valueSerde":"String"}'
