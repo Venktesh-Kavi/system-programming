@@ -18,6 +18,9 @@ Our Temporal production database running on PostgreSQL RDS faces performance cha
   - Performance degradation
   - Higher database load during analyze phase
 
+![high read io][high_read_io.png]
+![perf insights][perf_insights_dashboard.png]
+
 ## Solution
 
 We optimized the autovacuum process through parameter tuning and testing:
@@ -26,6 +29,9 @@ We optimized the autovacuum process through parameter tuning and testing:
 1. Tested different autovacuum parameters under production-like workload
 2. Increased resources for autovacuum operations
 3. Fine-tuned key parameters for better efficiency
+
+![Default vs Changed Parameter IO Performance][default_vs_changed_params.png]
+![Parameteres Changes][param_changes.png]
 
 ### Parameters Modified
 - `autovacuum_vacuum_cost_limit`
