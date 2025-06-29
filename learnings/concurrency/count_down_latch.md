@@ -41,4 +41,4 @@
 
 ### Reference Code
 
-[CountDownLatchPoc.java](/Users/venktesh.k/workspace/personal/system-programming/pocs/countDownLatch/CountDownLatchPoc.java)
+[CountDownLatchPoc.java](https://github.com/Venktesh-Kavi/system-programming/blob/master/pocs/countDownLatch/CountDownLatchPoc.java)
