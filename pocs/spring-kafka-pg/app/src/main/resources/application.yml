@@ -20,26 +20,11 @@ logging:
   level:
     root: INFO
     org.apache.kafka: INFO
-    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: DEBUG
-    org.apache.kafka.clients.consumer.KafkaConsumer: DEBUG
-    org.apache.kafka.clients.consumer.internals.SubscriptionState: DEBUG
-    org.apache.kafka.clients.consumer.internals.AbstractCoordinator: INFO
-    com.pg.vkt.kafka: DEBUG
+    # org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: DEBUG
+    # org.apache.kafka.clients.consumer.KafkaConsumer: DEBUG
+    # org.apache.kafka.clients.consumer.internals.SubscriptionState: DEBUG
+    # org.apache.kafka.clients.consumer.internals.AbstractCoordinator: INFO
+    # com.pg.vkt.kafka: DEBUG
 
 server:
   port: 8085
-
-spring:
-  datasource:
-    url: jdbc:h2:mem:failedmessagesdb
-    username: sa
-    password: password
-    driverClassName: org.h2.Driver
-  jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
